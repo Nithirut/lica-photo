@@ -1,4 +1,4 @@
-﻿import { google } from 'googleapis';
+import { google } from 'googleapis';
 
 export default async function handler(req, res) {
   const { fileId } = req.query;
