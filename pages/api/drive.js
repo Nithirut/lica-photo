@@ -1,4 +1,4 @@
-﻿import { google } from 'googleapis';
+import { google } from 'googleapis';
 
 async function getDriveClient() {
   const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
