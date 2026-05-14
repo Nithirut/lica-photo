@@ -6,6 +6,8 @@ const MAX_SELECT = 10;
 const LICA_FOLDER_ID = '1XWC1YGcl_oCzxX0GSMcX2BiiT2xaGTO3';
 
 export default function Home() {
+  const [showSplash, setShowSplash] = useState(true);
+  const [splashFading, setSplashFading] = useState(false);
   const [folders, setFolders] = useState([]);
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [subfolders, setSubfolders] = useState([]);
@@ -34,6 +36,11 @@ export default function Home() {
       .then(data => { setFolders(data.folders || []); setLoadingFolders(false); })
       .catch(() => setLoadingFolders(false));
   }, []);
+
+  const enterApp = () => {
+    setSplashFading(true);
+    setTimeout(() => setShowSplash(false), 500);
+  };
 
   const openFolder = async (folder) => {
     setSelectedFolder(folder);
@@ -204,11 +211,130 @@ export default function Home() {
       <Head>
         <title>LICA Photo</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Playfair+Display:wght@400;700&family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet" />
       </Head>
       <style>{`
         * { margin:0; padding:0; box-sizing:border-box; }
         body { background:#0a0a0a; color:#f0ece4; font-family:'Sarabun',sans-serif; min-height:100vh; }
+
+        /* ===== SPLASH PAGE ===== */
+        .splash {
+          position:fixed; inset:0; z-index:999;
+          background:radial-gradient(ellipse at 50% 20%, #4a0808 0%, #200000 45%, #050000 100%);
+          display:flex; flex-direction:column; align-items:center; justify-content:center;
+          overflow:hidden; cursor:pointer;
+          transition:opacity 0.5s ease, transform 0.5s ease;
+        }
+        .splash.fading { opacity:0; transform:scale(1.04); pointer-events:none; }
+
+        /* Glow layers */
+        .splash-glow-top {
+          position:absolute; width:700px; height:500px; top:-150px; left:50%;
+          transform:translateX(-50%);
+          background:radial-gradient(ellipse, rgba(180,10,10,0.35) 0%, transparent 70%);
+          pointer-events:none;
+        }
+        .splash-glow-mid {
+          position:absolute; width:500px; height:400px; top:30%; left:50%;
+          transform:translateX(-50%);
+          background:radial-gradient(ellipse, rgba(120,0,0,0.2) 0%, transparent 70%);
+          pointer-events:none;
+        }
+
+        /* Brand text */
+        .splash-content {
+          position:relative; z-index:1;
+          display:flex; flex-direction:column; align-items:center;
+          animation:splashIn 0.8s ease both;
+        }
+        @keyframes splashIn {
+          from { opacity:0; transform:translateY(20px); }
+          to   { opacity:1; transform:translateY(0); }
+        }
+        .splash-brand {
+          font-family:'Pacifico',cursive;
+          font-size:clamp(72px,18vw,140px);
+          color:#fff;
+          line-height:1;
+          text-shadow:0 2px 40px rgba(255,255,255,0.08);
+          letter-spacing:-2px;
+        }
+        .splash-since {
+          font-family:'Sarabun',sans-serif;
+          font-size:clamp(12px,2.5vw,16px);
+          color:#c0392b;
+          letter-spacing:8px;
+          text-transform:uppercase;
+          margin-top:2px;
+          display:flex; align-items:center; gap:12px;
+        }
+        .splash-since::before, .splash-since::after {
+          content:''; display:inline-block;
+          width:40px; height:1px; background:#c0392b; opacity:0.7;
+        }
+
+        /* Logos row */
+        .splash-logos {
+          display:flex; align-items:center; gap:28px;
+          margin-top:clamp(28px,6vw,48px);
+        }
+
+        /* AIA LICA badge */
+        .badge-aia {
+          width:clamp(90px,20vw,115px); height:clamp(90px,20vw,115px);
+          cursor:pointer; opacity:0.9;
+          animation:splashIn 0.8s 0.15s ease both;
+        }
+
+        /* Orange Lica logo — main CTA */
+        .badge-lica {
+          width:clamp(108px,24vw,138px); height:clamp(108px,24vw,138px);
+          cursor:pointer;
+          animation:splashIn 0.8s 0.05s ease both, glow 2.4s ease-in-out infinite;
+          transition:transform 0.2s ease, filter 0.2s ease;
+          filter:drop-shadow(0 0 18px rgba(232,69,10,0.55));
+        }
+        .badge-lica:hover { transform:scale(1.1); filter:drop-shadow(0 0 28px rgba(232,69,10,0.85)); }
+        @keyframes glow {
+          0%,100% { filter:drop-shadow(0 0 14px rgba(232,69,10,0.5)); }
+          50%      { filter:drop-shadow(0 0 30px rgba(232,69,10,0.85)); }
+        }
+
+        .splash-org {
+          font-family:'Playfair Display',serif;
+          font-size:clamp(16px,4vw,22px);
+          font-weight:700; letter-spacing:8px;
+          color:#fff; margin-top:clamp(20px,5vw,32px);
+          animation:splashIn 0.8s 0.25s ease both;
+        }
+        .splash-org-sub {
+          font-family:'Sarabun',sans-serif;
+          font-size:clamp(10px,2.2vw,13px);
+          color:rgba(255,255,255,0.4);
+          letter-spacing:2px; margin-top:5px;
+          animation:splashIn 0.8s 0.3s ease both;
+        }
+
+        .splash-cta {
+          position:absolute; bottom:clamp(24px,5vh,44px);
+          font-family:'Sarabun',sans-serif;
+          font-size:12px; color:rgba(255,255,255,0.28);
+          letter-spacing:3px; text-transform:uppercase;
+          animation:blink 2.2s ease-in-out infinite;
+        }
+        @keyframes blink {
+          0%,100% { opacity:0.28; } 50% { opacity:0.65; }
+        }
+
+        /* Decorative red lines */
+        .splash-line {
+          position:absolute; left:0; right:0; height:1px;
+          background:linear-gradient(90deg,transparent,rgba(180,20,20,0.5),transparent);
+        }
+        .splash-line.top    { top:18%; }
+        .splash-line.bottom { bottom:18%; }
+
+        /* ===== APP STYLES ===== */
         .header {
           background:linear-gradient(180deg,#111 0%,transparent 100%);
           padding:28px 20px 20px; text-align:center; position:sticky; top:0; z-index:10;
@@ -366,7 +492,7 @@ export default function Home() {
         @keyframes spin { to { transform:rotate(360deg); } }
         .empty { text-align:center; padding:60px 20px; color:#555; font-size:14px; }
 
-        /* Landing */
+        /* Loading albums state */
         .landing {
           min-height:80vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
           text-align:center; padding:40px 20px;
@@ -380,6 +506,80 @@ export default function Home() {
         @keyframes loadBar { 0%{width:0%;margin-left:0} 50%{width:60%;margin-left:20%} 100%{width:0%;margin-left:100%} }
       `}</style>
 
+      {/* ===== SPLASH PAGE ===== */}
+      {showSplash && (
+        <div className={`splash${splashFading ? ' fading' : ''}`} onClick={enterApp}>
+          <div className="splash-glow-top" />
+          <div className="splash-glow-mid" />
+          <div className="splash-line top" />
+          <div className="splash-line bottom" />
+
+          <div className="splash-content">
+            <div className="splash-brand">Lica</div>
+            <div className="splash-since">since 1964</div>
+
+            <div className="splash-logos">
+              {/* AIA LICA circular badge */}
+              <svg className="badge-aia" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="100" cy="100" r="95" fill="white" stroke="#cc2200" strokeWidth="5"/>
+                {/* Circular text: LICA at top */}
+                <path id="topArc" d="M 30,100 A 70,70 0 0,1 170,100" fill="none"/>
+                <text fontSize="13" fontFamily="Arial,sans-serif" fontWeight="bold" fill="#cc2200" letterSpacing="5">
+                  <textPath href="#topArc" startOffset="15%">• L I C A •</textPath>
+                </text>
+                {/* AIA bird / phoenix silhouette simplified */}
+                <g transform="translate(100,95)" fill="#cc2200">
+                  <path d="M0,-32 C-8,-28 -22,-18 -28,-4 C-20,-12 -10,-14 0,-10 C10,-14 20,-12 28,-4 C22,-18 8,-28 0,-32Z"/>
+                  <path d="M-14,-8 C-24,2 -26,18 -18,26 C-10,10 -2,4 0,0 C2,4 10,10 18,26 C26,18 24,2 14,-8 C8,-4 4,0 0,0 C-4,0 -8,-4 -14,-8Z"/>
+                  <ellipse cx="0" cy="4" rx="6" ry="4"/>
+                </g>
+                <text x="100" y="134" textAnchor="middle" fontFamily="Arial Black,sans-serif" fontSize="17" fontWeight="900" fill="#cc2200" letterSpacing="2">AIA</text>
+                {/* Circular text: bottom */}
+                <path id="botArc" d="M 22,110 A 78,78 0 0,0 178,110" fill="none"/>
+                <text fontSize="7.5" fontFamily="Arial,sans-serif" fill="#555" letterSpacing="0.8">
+                  <textPath href="#botArc" startOffset="5%">Life Insurance Counsellor สมาคม</textPath>
+                </text>
+              </svg>
+
+              {/* Orange Lica logo — click to enter */}
+              <svg className="badge-lica" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" onClick={e => { e.stopPropagation(); enterApp(); }}>
+                <defs>
+                  <radialGradient id="orangeGrad" cx="45%" cy="40%">
+                    <stop offset="0%" stopColor="#f25a1a"/>
+                    <stop offset="100%" stopColor="#c93a00"/>
+                  </radialGradient>
+                </defs>
+                <circle cx="100" cy="100" r="100" fill="url(#orangeGrad)"/>
+                <circle cx="100" cy="100" r="94" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5"/>
+                {/* Lica text using foreignObject trick — fallback to styled text */}
+                <text
+                  x="100" y="118"
+                  textAnchor="middle"
+                  fontFamily="Pacifico, cursive"
+                  fontSize="56"
+                  fill="white"
+                  fontWeight="400"
+                >Lica</text>
+                <text
+                  x="100" y="150"
+                  textAnchor="middle"
+                  fontFamily="'Sarabun',Arial,sans-serif"
+                  fontSize="14"
+                  fill="rgba(255,255,255,0.82)"
+                  letterSpacing="2"
+                >since 1964</text>
+              </svg>
+            </div>
+
+            <div className="splash-org">LICA</div>
+            <div className="splash-org-sub">Life Insurance Counsellor Association</div>
+          </div>
+
+          <div className="splash-cta">แตะโลโก้เพื่อเข้าชมภาพถ่าย</div>
+        </div>
+      )}
+
+      {/* ===== APP ===== */}
       {maxAlert && <div className="max-alert">⚠️ เลือกได้สูงสุด {MAX_SELECT} รูป</div>}
 
       {downloading && (
@@ -417,7 +617,6 @@ export default function Home() {
       )}
 
       <div className="container">
-        {/* Loading albums */}
         {loadingFolders && !selectedFolder && (
           <div className="landing">
             <div className="landing-logo">🏆</div>
@@ -427,7 +626,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* Album list */}
         {!loadingFolders && !selectedFolder && (
           <>
             <div className="section-title">📁 เลือกงาน / อัลบั้ม</div>
@@ -446,7 +644,6 @@ export default function Home() {
           </>
         )}
 
-        {/* Subfolder list */}
         {selectedFolder && !selectedSubfolder && (loadingSubfolders || subfolders.length > 0) && (
           <>
             {loadingSubfolders ? (
@@ -467,7 +664,6 @@ export default function Home() {
           </>
         )}
 
-        {/* Photos */}
         {(selectedSubfolder || (selectedFolder && !selectedSubfolder && !loadingSubfolders && subfolders.length === 0)) && (
           <>
             {loading ? (
