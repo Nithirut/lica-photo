@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Head from 'next/head';
 
 const PHOTOS_PER_PAGE = 10;
@@ -8,6 +8,36 @@ const LICA_FOLDER_ID = '1XWC1YGcl_oCzxX0GSMcX2BiiT2xaGTO3';
 export default function Home() {
   const [showSplash, setShowSplash] = useState(true);
   const [splashFading, setSplashFading] = useState(false);
+  const [logoPos, setLogoPos] = useState(null);
+  const bgRef = useRef(null);
+
+  // ตำแหน่งโลโก้ใน background image (% ของขนาดภาพ)
+  // AIA badge center: x=34%, y=66%, size=17%
+  // Orange Lica center: x=59%, y=64%, size=20%
+  const calcLogoPos = useCallback(() => {
+    if (!bgRef.current) return;
+    const img = bgRef.current;
+    const natW = img.naturalWidth || 1320;
+    const natH = img.naturalHeight || 990;
+    const viewW = window.innerWidth;
+    const viewH = window.innerHeight;
+    const imgAspect = natW / natH;
+    const viewAspect = viewW / viewH;
+    let rendW, rendH, offX, offY;
+    if (viewAspect > imgAspect) {
+      rendH = viewH; rendW = rendH * imgAspect;
+      offX = (viewW - rendW) / 2; offY = 0;
+    } else {
+      rendW = viewW; rendH = rendW / imgAspect;
+      offX = 0; offY = (viewH - rendH) / 2;
+    }
+    const aiaW = 0.17 * rendW;
+    const licaW = 0.20 * rendW;
+    setLogoPos({
+      aia:  { left: offX + 0.34 * rendW - aiaW / 2,  top: offY + 0.66 * rendH - aiaW / 2,  size: aiaW },
+      lica: { left: offX + 0.59 * rendW - licaW / 2, top: offY + 0.64 * rendH - licaW / 2, size: licaW },
+    });
+  }, []);
   const [folders, setFolders] = useState([]);
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [subfolders, setSubfolders] = useState([]);
@@ -36,6 +66,11 @@ export default function Home() {
       .then(data => { setFolders(data.folders || []); setLoadingFolders(false); })
       .catch(() => setLoadingFolders(false));
   }, []);
+
+  useEffect(() => {
+    window.addEventListener('resize', calcLogoPos);
+    return () => window.removeEventListener('resize', calcLogoPos);
+  }, [calcLogoPos]);
 
   const enterApp = () => {
     setSplashFading(true);
@@ -220,131 +255,63 @@ export default function Home() {
         /* ===== SPLASH PAGE ===== */
         .splash {
           position:fixed; inset:0; z-index:999;
-          background:radial-gradient(ellipse at 50% 20%, #4a0808 0%, #200000 45%, #050000 100%);
-          display:flex; flex-direction:column; align-items:center; justify-content:center;
+          background:#000;
           overflow:hidden; cursor:pointer;
           transition:opacity 0.5s ease, transform 0.5s ease;
         }
         .splash.fading { opacity:0; transform:scale(1.04); pointer-events:none; }
 
-        /* Glow layers */
-        .splash-glow-top {
-          position:absolute; width:700px; height:500px; top:-150px; left:50%;
-          transform:translateX(-50%);
-          background:radial-gradient(ellipse, rgba(180,10,10,0.35) 0%, transparent 70%);
-          pointer-events:none;
-        }
-        .splash-glow-mid {
-          position:absolute; width:500px; height:400px; top:30%; left:50%;
-          transform:translateX(-50%);
-          background:radial-gradient(ellipse, rgba(120,0,0,0.2) 0%, transparent 70%);
+        /* Background image fills full screen with contain (no crop) */
+        .splash-bg {
+          position:absolute; inset:0;
+          width:100%; height:100%;
+          object-fit:contain;
           pointer-events:none;
         }
 
-        /* Brand text */
-        .splash-content {
-          position:relative; z-index:1;
-          display:flex; flex-direction:column; align-items:center;
-          animation:splashIn 0.8s ease both;
-        }
-        @keyframes splashIn {
-          from { opacity:0; transform:translateY(20px); }
-          to   { opacity:1; transform:translateY(0); }
-        }
-        .splash-brand {
-          font-family:'Pacifico',cursive;
-          font-size:clamp(72px,18vw,140px);
-          color:#fff;
-          line-height:1;
-          text-shadow:0 2px 40px rgba(255,255,255,0.08);
-          letter-spacing:-2px;
-        }
-        .splash-since {
-          font-family:'Sarabun',sans-serif;
-          font-size:clamp(12px,2.5vw,16px);
-          color:#c0392b;
-          letter-spacing:8px;
-          text-transform:uppercase;
-          margin-top:2px;
-          display:flex; align-items:center; gap:12px;
-        }
-        .splash-since::before, .splash-since::after {
-          content:''; display:inline-block;
-          width:40px; height:1px; background:#c0392b; opacity:0.7;
-        }
-
-        /* Logos overlapping container */
-        .splash-logos {
-          position:relative;
-          width:clamp(220px,55vw,300px);
-          height:clamp(140px,30vw,180px);
-          margin-top:clamp(24px,5vw,40px);
-          animation:splashIn 0.8s 0.1s ease both;
-        }
-
-        /* AIA badge — behind, left, slightly rotated */
+        /* Logo buttons - positioned via JS inline styles */
         .badge-aia {
           position:absolute;
-          width:clamp(110px,26vw,148px); height:clamp(110px,26vw,148px);
-          left:0; top:50%; transform:translateY(-50%) rotate(-6deg);
-          border-radius:50%; object-fit:cover;
-          box-shadow:0 8px 32px rgba(0,0,0,0.6);
-          z-index:1;
-          transition:transform 0.3s ease;
-          cursor:pointer;
-        }
-        .badge-aia:hover { transform:translateY(-50%) rotate(-6deg) scale(1.05); }
-
-        /* Orange Lica logo — front, right, overlapping AIA, main CTA */
-        .badge-lica {
-          position:absolute;
-          width:clamp(130px,30vw,168px); height:clamp(130px,30vw,168px);
-          right:0; top:50%; transform:translateY(-50%) rotate(4deg);
           border-radius:50%; object-fit:cover;
           cursor:pointer; z-index:2;
-          animation:glow 2.4s ease-in-out infinite;
-          transition:transform 0.2s ease;
-          box-shadow:0 0 0 3px rgba(232,69,10,0.3), 0 8px 40px rgba(232,69,10,0.45);
+          transition:transform 0.25s ease, box-shadow 0.25s ease;
+          box-shadow:0 4px 20px rgba(0,0,0,0.5);
+          animation:splashIn 0.7s 0.2s ease both;
         }
-        .badge-lica:hover { transform:translateY(-50%) rotate(4deg) scale(1.1); }
-        @keyframes glow {
-          0%,100% { box-shadow:0 0 0 3px rgba(232,69,10,0.3), 0 8px 32px rgba(232,69,10,0.4); }
-          50%      { box-shadow:0 0 0 6px rgba(232,69,10,0.5), 0 8px 50px rgba(232,69,10,0.7); }
+        .badge-aia:hover {
+          transform:translate(0,0) scale(1.08) !important;
+          box-shadow:0 0 24px rgba(255,255,255,0.25);
         }
 
-        .splash-org {
-          font-family:'Playfair Display',serif;
-          font-size:clamp(16px,4vw,22px);
-          font-weight:700; letter-spacing:8px;
-          color:#fff; margin-top:clamp(20px,5vw,32px);
-          animation:splashIn 0.8s 0.25s ease both;
+        .badge-lica {
+          position:absolute;
+          border-radius:50%; object-fit:cover;
+          cursor:pointer; z-index:3;
+          animation:splashIn 0.7s 0.1s ease both, glow 2.4s ease-in-out infinite;
+          transition:transform 0.2s ease;
         }
-        .splash-org-sub {
-          font-family:'Sarabun',sans-serif;
-          font-size:clamp(10px,2.2vw,13px);
-          color:rgba(255,255,255,0.4);
-          letter-spacing:2px; margin-top:5px;
-          animation:splashIn 0.8s 0.3s ease both;
+        .badge-lica:hover { transform:translate(0,0) scale(1.1) !important; }
+
+        @keyframes splashIn {
+          from { opacity:0; transform:scale(0.85); }
+          to   { opacity:1; transform:scale(1); }
+        }
+        @keyframes glow {
+          0%,100% { box-shadow:0 0 0 4px rgba(232,69,10,0.35), 0 0 24px rgba(232,69,10,0.35); }
+          50%      { box-shadow:0 0 0 8px rgba(232,69,10,0.6),  0 0 48px rgba(232,69,10,0.6); }
         }
 
         .splash-cta {
-          position:absolute; bottom:clamp(24px,5vh,44px);
+          position:absolute; bottom:clamp(20px,4vh,40px); left:0; right:0;
+          text-align:center;
           font-family:'Sarabun',sans-serif;
-          font-size:12px; color:rgba(255,255,255,0.28);
+          font-size:12px; color:rgba(255,255,255,0.35);
           letter-spacing:3px; text-transform:uppercase;
           animation:blink 2.2s ease-in-out infinite;
         }
         @keyframes blink {
-          0%,100% { opacity:0.28; } 50% { opacity:0.65; }
+          0%,100% { opacity:0.35; } 50% { opacity:0.75; }
         }
-
-        /* Decorative red lines */
-        .splash-line {
-          position:absolute; left:0; right:0; height:1px;
-          background:linear-gradient(90deg,transparent,rgba(180,20,20,0.5),transparent);
-        }
-        .splash-line.top    { top:18%; }
-        .splash-line.bottom { bottom:18%; }
 
         /* ===== APP STYLES ===== */
         .header {
@@ -521,35 +488,46 @@ export default function Home() {
       {/* ===== SPLASH PAGE ===== */}
       {showSplash && (
         <div className={`splash${splashFading ? ' fading' : ''}`} onClick={enterApp}>
-          <div className="splash-glow-top" />
-          <div className="splash-glow-mid" />
-          <div className="splash-line top" />
-          <div className="splash-line bottom" />
+          {/* Full-screen background photo */}
+          <img
+            ref={bgRef}
+            className="splash-bg"
+            src="/bg-splash.jpg"
+            alt=""
+            onLoad={calcLogoPos}
+          />
 
-          <div className="splash-content">
-            <div className="splash-brand">Lica</div>
-            <div className="splash-since">since 1964</div>
+          {/* AIA badge — positioned to match logo in background photo */}
+          {logoPos?.aia && (
+            <img
+              className="badge-aia"
+              src="/logo-aia.jpg"
+              alt="LICA AIA"
+              style={{
+                left: logoPos.aia.left,
+                top: logoPos.aia.top,
+                width: logoPos.aia.size,
+                height: logoPos.aia.size,
+              }}
+              onClick={enterApp}
+            />
+          )}
 
-            <div className="splash-logos">
-              {/* AIA LICA circular badge — real image, behind */}
-              <img
-                className="badge-aia"
-                src="/logo-aia.jpg"
-                alt="LICA AIA"
-                onClick={enterApp}
-              />
-              {/* Orange Lica logo — real image, front, main CTA */}
-              <img
-                className="badge-lica"
-                src="/logo-lica.jpg"
-                alt="Lica since 1964"
-                onClick={e => { e.stopPropagation(); enterApp(); }}
-              />
-            </div>
-
-            <div className="splash-org">LICA</div>
-            <div className="splash-org-sub">Life Insurance Counsellor Association</div>
-          </div>
+          {/* Orange Lica logo — positioned to match logo in background photo */}
+          {logoPos?.lica && (
+            <img
+              className="badge-lica"
+              src="/logo-lica.jpg"
+              alt="Lica"
+              style={{
+                left: logoPos.lica.left,
+                top: logoPos.lica.top,
+                width: logoPos.lica.size,
+                height: logoPos.lica.size,
+              }}
+              onClick={e => { e.stopPropagation(); enterApp(); }}
+            />
+          )}
 
           <div className="splash-cta">แตะโลโก้เพื่อเข้าชมภาพถ่าย</div>
         </div>
