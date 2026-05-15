@@ -11,14 +11,18 @@ export default function Home() {
   const [logoPos, setLogoPos] = useState(null);
   const bgRef = useRef(null);
 
-  // ตำแหน่งโลโก้ใน background image (% ของขนาดภาพ)
-  // AIA badge center: x=34%, y=66%, size=17%
-  // Orange Lica center: x=59%, y=64%, size=20%
+  // Bounding box ของแต่ละโลโก้ใน background image (สัดส่วน 0–1 ของขนาดภาพจริง)
+  // กำหนดเป็น x1,y1 (มุมบนซ้าย) และ x2,y2 (มุมล่างขวา)
+  const LOGO_BOXES = {
+    aia:  { x1: 0.12, y1: 0.52, x2: 0.38, y2: 0.83 }, // AIA วงกลมขาว ซ้าย
+    lica: { x1: 0.35, y1: 0.49, x2: 0.66, y2: 0.84 }, // Orange Lica วงกลม ขวา
+  };
+
   const calcLogoPos = useCallback(() => {
     if (!bgRef.current) return;
     const img = bgRef.current;
-    const natW = img.naturalWidth || 1320;
-    const natH = img.naturalHeight || 990;
+    const natW = img.naturalWidth  || 1320;
+    const natH = img.naturalHeight || 1320;
     const viewW = window.innerWidth;
     const viewH = window.innerHeight;
     const imgAspect = natW / natH;
@@ -31,12 +35,13 @@ export default function Home() {
       rendW = viewW; rendH = rendW / imgAspect;
       offX = 0; offY = (viewH - rendH) / 2;
     }
-    const aiaW = 0.18 * rendW;
-    const licaW = 0.22 * rendW;
-    setLogoPos({
-      aia:  { left: offX + 0.29 * rendW - aiaW / 2,  top: offY + 0.63 * rendH - aiaW / 2,  size: aiaW },
-      lica: { left: offX + 0.54 * rendW - licaW / 2, top: offY + 0.62 * rendH - licaW / 2, size: licaW },
+    const box = (b) => ({
+      left:   offX + b.x1 * rendW,
+      top:    offY + b.y1 * rendH,
+      width:  (b.x2 - b.x1) * rendW,
+      height: (b.y2 - b.y1) * rendH,
     });
+    setLogoPos({ aia: box(LOGO_BOXES.aia), lica: box(LOGO_BOXES.lica) });
   }, []);
   const [folders, setFolders] = useState([]);
   const [selectedFolder, setSelectedFolder] = useState(null);
@@ -497,33 +502,33 @@ export default function Home() {
             onLoad={calcLogoPos}
           />
 
-          {/* AIA badge — positioned to match logo in background photo */}
+          {/* AIA badge — fills bounding box ของโลโก้ใน background */}
           {logoPos?.aia && (
             <img
               className="badge-aia"
               src="/logo-aia.jpg"
               alt="LICA AIA"
               style={{
-                left: logoPos.aia.left,
-                top: logoPos.aia.top,
-                width: logoPos.aia.size,
-                height: logoPos.aia.size,
+                left:   logoPos.aia.left,
+                top:    logoPos.aia.top,
+                width:  logoPos.aia.width,
+                height: logoPos.aia.height,
               }}
               onClick={enterApp}
             />
           )}
 
-          {/* Orange Lica logo — positioned to match logo in background photo */}
+          {/* Orange Lica badge — fills bounding box ของโลโก้ใน background */}
           {logoPos?.lica && (
             <img
               className="badge-lica"
               src="/logo-lica.jpg"
               alt="Lica"
               style={{
-                left: logoPos.lica.left,
-                top: logoPos.lica.top,
-                width: logoPos.lica.size,
-                height: logoPos.lica.size,
+                left:   logoPos.lica.left,
+                top:    logoPos.lica.top,
+                width:  logoPos.lica.width,
+                height: logoPos.lica.height,
               }}
               onClick={e => { e.stopPropagation(); enterApp(); }}
             />
