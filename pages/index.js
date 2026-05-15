@@ -31,11 +31,11 @@ export default function Home() {
       rendW = viewW; rendH = rendW / imgAspect;
       offX = 0; offY = (viewH - rendH) / 2;
     }
-    const aiaW = 0.17 * rendW;
-    const licaW = 0.20 * rendW;
+    const aiaW = 0.18 * rendW;
+    const licaW = 0.22 * rendW;
     setLogoPos({
-      aia:  { left: offX + 0.34 * rendW - aiaW / 2,  top: offY + 0.66 * rendH - aiaW / 2,  size: aiaW },
-      lica: { left: offX + 0.59 * rendW - licaW / 2, top: offY + 0.64 * rendH - licaW / 2, size: licaW },
+      aia:  { left: offX + 0.29 * rendW - aiaW / 2,  top: offY + 0.63 * rendH - aiaW / 2,  size: aiaW },
+      lica: { left: offX + 0.54 * rendW - licaW / 2, top: offY + 0.62 * rendH - licaW / 2, size: licaW },
     });
   }, []);
   const [folders, setFolders] = useState([]);
