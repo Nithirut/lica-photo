@@ -273,31 +273,43 @@ export default function Home() {
           width:40px; height:1px; background:#c0392b; opacity:0.7;
         }
 
-        /* Logos row */
+        /* Logos overlapping container */
         .splash-logos {
-          display:flex; align-items:center; gap:28px;
-          margin-top:clamp(28px,6vw,48px);
+          position:relative;
+          width:clamp(220px,55vw,300px);
+          height:clamp(140px,30vw,180px);
+          margin-top:clamp(24px,5vw,40px);
+          animation:splashIn 0.8s 0.1s ease both;
         }
 
-        /* AIA LICA badge */
+        /* AIA badge — behind, left, slightly rotated */
         .badge-aia {
-          width:clamp(90px,20vw,115px); height:clamp(90px,20vw,115px);
-          cursor:pointer; opacity:0.9;
-          animation:splashIn 0.8s 0.15s ease both;
-        }
-
-        /* Orange Lica logo — main CTA */
-        .badge-lica {
-          width:clamp(108px,24vw,138px); height:clamp(108px,24vw,138px);
+          position:absolute;
+          width:clamp(110px,26vw,148px); height:clamp(110px,26vw,148px);
+          left:0; top:50%; transform:translateY(-50%) rotate(-6deg);
+          border-radius:50%; object-fit:cover;
+          box-shadow:0 8px 32px rgba(0,0,0,0.6);
+          z-index:1;
+          transition:transform 0.3s ease;
           cursor:pointer;
-          animation:splashIn 0.8s 0.05s ease both, glow 2.4s ease-in-out infinite;
-          transition:transform 0.2s ease, filter 0.2s ease;
-          filter:drop-shadow(0 0 18px rgba(232,69,10,0.55));
         }
-        .badge-lica:hover { transform:scale(1.1); filter:drop-shadow(0 0 28px rgba(232,69,10,0.85)); }
+        .badge-aia:hover { transform:translateY(-50%) rotate(-6deg) scale(1.05); }
+
+        /* Orange Lica logo — front, right, overlapping AIA, main CTA */
+        .badge-lica {
+          position:absolute;
+          width:clamp(130px,30vw,168px); height:clamp(130px,30vw,168px);
+          right:0; top:50%; transform:translateY(-50%) rotate(4deg);
+          border-radius:50%; object-fit:cover;
+          cursor:pointer; z-index:2;
+          animation:glow 2.4s ease-in-out infinite;
+          transition:transform 0.2s ease;
+          box-shadow:0 0 0 3px rgba(232,69,10,0.3), 0 8px 40px rgba(232,69,10,0.45);
+        }
+        .badge-lica:hover { transform:translateY(-50%) rotate(4deg) scale(1.1); }
         @keyframes glow {
-          0%,100% { filter:drop-shadow(0 0 14px rgba(232,69,10,0.5)); }
-          50%      { filter:drop-shadow(0 0 30px rgba(232,69,10,0.85)); }
+          0%,100% { box-shadow:0 0 0 3px rgba(232,69,10,0.3), 0 8px 32px rgba(232,69,10,0.4); }
+          50%      { box-shadow:0 0 0 6px rgba(232,69,10,0.5), 0 8px 50px rgba(232,69,10,0.7); }
         }
 
         .splash-org {
@@ -519,56 +531,20 @@ export default function Home() {
             <div className="splash-since">since 1964</div>
 
             <div className="splash-logos">
-              {/* AIA LICA circular badge */}
-              <svg className="badge-aia" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="100" cy="100" r="95" fill="white" stroke="#cc2200" strokeWidth="5"/>
-                {/* Circular text: LICA at top */}
-                <path id="topArc" d="M 30,100 A 70,70 0 0,1 170,100" fill="none"/>
-                <text fontSize="13" fontFamily="Arial,sans-serif" fontWeight="bold" fill="#cc2200" letterSpacing="5">
-                  <textPath href="#topArc" startOffset="15%">• L I C A •</textPath>
-                </text>
-                {/* AIA bird / phoenix silhouette simplified */}
-                <g transform="translate(100,95)" fill="#cc2200">
-                  <path d="M0,-32 C-8,-28 -22,-18 -28,-4 C-20,-12 -10,-14 0,-10 C10,-14 20,-12 28,-4 C22,-18 8,-28 0,-32Z"/>
-                  <path d="M-14,-8 C-24,2 -26,18 -18,26 C-10,10 -2,4 0,0 C2,4 10,10 18,26 C26,18 24,2 14,-8 C8,-4 4,0 0,0 C-4,0 -8,-4 -14,-8Z"/>
-                  <ellipse cx="0" cy="4" rx="6" ry="4"/>
-                </g>
-                <text x="100" y="134" textAnchor="middle" fontFamily="Arial Black,sans-serif" fontSize="17" fontWeight="900" fill="#cc2200" letterSpacing="2">AIA</text>
-                {/* Circular text: bottom */}
-                <path id="botArc" d="M 22,110 A 78,78 0 0,0 178,110" fill="none"/>
-                <text fontSize="7.5" fontFamily="Arial,sans-serif" fill="#555" letterSpacing="0.8">
-                  <textPath href="#botArc" startOffset="5%">Life Insurance Counsellor สมาคม</textPath>
-                </text>
-              </svg>
-
-              {/* Orange Lica logo — click to enter */}
-              <svg className="badge-lica" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" onClick={e => { e.stopPropagation(); enterApp(); }}>
-                <defs>
-                  <radialGradient id="orangeGrad" cx="45%" cy="40%">
-                    <stop offset="0%" stopColor="#f25a1a"/>
-                    <stop offset="100%" stopColor="#c93a00"/>
-                  </radialGradient>
-                </defs>
-                <circle cx="100" cy="100" r="100" fill="url(#orangeGrad)"/>
-                <circle cx="100" cy="100" r="94" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5"/>
-                {/* Lica text using foreignObject trick — fallback to styled text */}
-                <text
-                  x="100" y="118"
-                  textAnchor="middle"
-                  fontFamily="Pacifico, cursive"
-                  fontSize="56"
-                  fill="white"
-                  fontWeight="400"
-                >Lica</text>
-                <text
-                  x="100" y="150"
-                  textAnchor="middle"
-                  fontFamily="'Sarabun',Arial,sans-serif"
-                  fontSize="14"
-                  fill="rgba(255,255,255,0.82)"
-                  letterSpacing="2"
-                >since 1964</text>
-              </svg>
+              {/* AIA LICA circular badge — real image, behind */}
+              <img
+                className="badge-aia"
+                src="/logo-aia.jpg"
+                alt="LICA AIA"
+                onClick={enterApp}
+              />
+              {/* Orange Lica logo — real image, front, main CTA */}
+              <img
+                className="badge-lica"
+                src="/logo-lica.jpg"
+                alt="Lica since 1964"
+                onClick={e => { e.stopPropagation(); enterApp(); }}
+              />
             </div>
 
             <div className="splash-org">LICA</div>
