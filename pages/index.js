@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 
 const PHOTOS_PER_PAGE = 10;
@@ -8,41 +8,6 @@ const LICA_FOLDER_ID = '1XWC1YGcl_oCzxX0GSMcX2BiiT2xaGTO3';
 export default function Home() {
   const [showSplash, setShowSplash] = useState(true);
   const [splashFading, setSplashFading] = useState(false);
-  const [logoPos, setLogoPos] = useState(null);
-  const bgRef = useRef(null);
-
-  // Bounding box ของแต่ละโลโก้ใน background image (สัดส่วน 0–1 ของขนาดภาพจริง)
-  // กำหนดเป็น x1,y1 (มุมบนซ้าย) และ x2,y2 (มุมล่างขวา)
-  const LOGO_BOXES = {
-    aia:  { x1: 0.12, y1: 0.52, x2: 0.38, y2: 0.83 }, // AIA วงกลมขาว ซ้าย
-    lica: { x1: 0.35, y1: 0.49, x2: 0.66, y2: 0.84 }, // Orange Lica วงกลม ขวา
-  };
-
-  const calcLogoPos = useCallback(() => {
-    if (!bgRef.current) return;
-    const img = bgRef.current;
-    const natW = img.naturalWidth  || 1320;
-    const natH = img.naturalHeight || 1320;
-    const viewW = window.innerWidth;
-    const viewH = window.innerHeight;
-    const imgAspect = natW / natH;
-    const viewAspect = viewW / viewH;
-    let rendW, rendH, offX, offY;
-    if (viewAspect > imgAspect) {
-      rendH = viewH; rendW = rendH * imgAspect;
-      offX = (viewW - rendW) / 2; offY = 0;
-    } else {
-      rendW = viewW; rendH = rendW / imgAspect;
-      offX = 0; offY = (viewH - rendH) / 2;
-    }
-    const box = (b) => ({
-      left:   offX + b.x1 * rendW,
-      top:    offY + b.y1 * rendH,
-      width:  (b.x2 - b.x1) * rendW,
-      height: (b.y2 - b.y1) * rendH,
-    });
-    setLogoPos({ aia: box(LOGO_BOXES.aia), lica: box(LOGO_BOXES.lica) });
-  }, []);
   const [folders, setFolders] = useState([]);
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [subfolders, setSubfolders] = useState([]);
@@ -71,11 +36,6 @@ export default function Home() {
       .then(data => { setFolders(data.folders || []); setLoadingFolders(false); })
       .catch(() => setLoadingFolders(false));
   }, []);
-
-  useEffect(() => {
-    window.addEventListener('resize', calcLogoPos);
-    return () => window.removeEventListener('resize', calcLogoPos);
-  }, [calcLogoPos]);
 
   const enterApp = () => {
     setSplashFading(true);
@@ -260,62 +220,29 @@ export default function Home() {
         /* ===== SPLASH PAGE ===== */
         .splash {
           position:fixed; inset:0; z-index:999;
-          background:#000;
+          background:#2b2b2b;
           overflow:hidden; cursor:pointer;
-          transition:opacity 0.5s ease, transform 0.5s ease;
+          transition:opacity 0.5s ease;
         }
-        .splash.fading { opacity:0; transform:scale(1.04); pointer-events:none; }
+        .splash.fading { opacity:0; pointer-events:none; }
 
-        /* Background image fills full screen with contain (no crop) */
         .splash-bg {
           position:absolute; inset:0;
           width:100%; height:100%;
-          object-fit:contain;
+          object-fit:cover;
           pointer-events:none;
         }
 
-        /* Logo buttons - positioned via JS inline styles */
-        .badge-aia {
-          position:absolute;
-          border-radius:50%; object-fit:cover;
-          cursor:pointer; z-index:2;
-          transition:transform 0.25s ease, box-shadow 0.25s ease;
-          box-shadow:0 4px 20px rgba(0,0,0,0.5);
-          animation:splashIn 0.7s 0.2s ease both;
-        }
-        .badge-aia:hover {
-          transform:translate(0,0) scale(1.08) !important;
-          box-shadow:0 0 24px rgba(255,255,255,0.25);
-        }
-
-        .badge-lica {
-          position:absolute;
-          border-radius:50%; object-fit:cover;
-          cursor:pointer; z-index:3;
-          animation:splashIn 0.7s 0.1s ease both, glow 2.4s ease-in-out infinite;
-          transition:transform 0.2s ease;
-        }
-        .badge-lica:hover { transform:translate(0,0) scale(1.1) !important; }
-
-        @keyframes splashIn {
-          from { opacity:0; transform:scale(0.85); }
-          to   { opacity:1; transform:scale(1); }
-        }
-        @keyframes glow {
-          0%,100% { box-shadow:0 0 0 4px rgba(232,69,10,0.35), 0 0 24px rgba(232,69,10,0.35); }
-          50%      { box-shadow:0 0 0 8px rgba(232,69,10,0.6),  0 0 48px rgba(232,69,10,0.6); }
-        }
-
         .splash-cta {
-          position:absolute; bottom:clamp(20px,4vh,40px); left:0; right:0;
+          position:absolute; bottom:clamp(24px,5vh,50px); left:0; right:0;
           text-align:center;
           font-family:'Sarabun',sans-serif;
-          font-size:12px; color:rgba(255,255,255,0.35);
+          font-size:13px; color:rgba(255,255,255,0.5);
           letter-spacing:3px; text-transform:uppercase;
-          animation:blink 2.2s ease-in-out infinite;
+          animation:blink 2s ease-in-out infinite;
         }
         @keyframes blink {
-          0%,100% { opacity:0.35; } 50% { opacity:0.75; }
+          0%,100% { opacity:0.4; } 50% { opacity:0.9; }
         }
 
         /* ===== APP STYLES ===== */
@@ -493,48 +420,8 @@ export default function Home() {
       {/* ===== SPLASH PAGE ===== */}
       {showSplash && (
         <div className={`splash${splashFading ? ' fading' : ''}`} onClick={enterApp}>
-          {/* Full-screen background photo */}
-          <img
-            ref={bgRef}
-            className="splash-bg"
-            src="/bg-splash.jpg"
-            alt=""
-            onLoad={calcLogoPos}
-          />
-
-          {/* AIA badge — fills bounding box ของโลโก้ใน background */}
-          {logoPos?.aia && (
-            <img
-              className="badge-aia"
-              src="/logo-aia.jpg"
-              alt="LICA AIA"
-              style={{
-                left:   logoPos.aia.left,
-                top:    logoPos.aia.top,
-                width:  logoPos.aia.width,
-                height: logoPos.aia.height,
-              }}
-              onClick={enterApp}
-            />
-          )}
-
-          {/* Orange Lica badge — fills bounding box ของโลโก้ใน background */}
-          {logoPos?.lica && (
-            <img
-              className="badge-lica"
-              src="/logo-lica.jpg"
-              alt="Lica"
-              style={{
-                left:   logoPos.lica.left,
-                top:    logoPos.lica.top,
-                width:  logoPos.lica.width,
-                height: logoPos.lica.height,
-              }}
-              onClick={e => { e.stopPropagation(); enterApp(); }}
-            />
-          )}
-
-          <div className="splash-cta">แตะโลโก้เพื่อเข้าชมภาพถ่าย</div>
+          <img className="splash-bg" src="/bg-splash.jpg" alt="" />
+          <div className="splash-cta">แตะที่จอเพื่อเข้าชมภาพถ่าย</div>
         </div>
       )}
 
