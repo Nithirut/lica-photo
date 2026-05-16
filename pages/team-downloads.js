@@ -12,8 +12,7 @@ function FolderCard({ folder, onClick }) {
   return (
     <div
       onClick={onClick}
-      onMouseEnter={function(){setHov(true);}}
-      onMouseLeave={function(){setHov(false);}}
+      className="td-hover"
       style={{
         background: hov ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.04)',
         border: '1px solid ' + (hov ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.07)'),
@@ -36,8 +35,7 @@ function PhotoCard({ file }) {
   var thumb = file.thumbnailLink ? file.thumbnailLink.replace(/=s[0-9]+/, '') + '=s400' : null;
   return (
     <div
-      onMouseEnter={function(){setHov(true);}}
-      onMouseLeave={function(){setHov(false);}}
+      className="td-hover"
       style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', aspectRatio: '1 / 1' }}
     >
       {thumb && !imgErr ? (
@@ -130,7 +128,11 @@ export default function TeamDownloads() {
         <title>ผู้ร่วมงาน — LICA Photo</title>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="robots" content="noindex,nofollow" />
-        <style>{'*{box-sizing:border-box;margin:0;padding:0} body{background:#080808;overflow-x:hidden}'}</style>
+        <style>{'*{box-sizing:border-box;margin:0;padding:0} body{background:#080808;overflow-x:hidden}'}
+  * { -webkit-tap-highlight-color: transparent; }
+  body { overflow-x: hidden; }
+  @media (hover: hover) { .td-hover:hover { opacity: 0.85; } }
+</style>
       </Head>
 
       {/* ── Sticky header ── */}
