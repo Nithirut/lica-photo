@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     const foldersRes = await drive.files.list({
       q: `'${FOLDER_ID}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,
       fields: 'files(id,name,createdTime,modifiedTime)',
-      orderBy: 'name',
+      orderBy: 'createdTime desc',
       pageSize: 100,
     });
     const folders = foldersRes.data.files || [];
@@ -47,6 +47,9 @@ export default async function handler(req, res) {
         };
       })
     );
+
+    // Sort newest first by date
+    events.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     res.setHeader('Cache-Control', 's-maxage=120, stale-while-revalidate=300');
     return res.status(200).json({ events });
