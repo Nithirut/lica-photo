@@ -24,7 +24,7 @@ function uploadToGoogle(file, uploadUrl, onProgress) {
 
 function LoginScreen({ error }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: 24, fontFamily: FONT, color: '#fff' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100svh', gap: 24, fontFamily: FONT, color: '#fff' }}>
       <div style={{ textAlign: 'center', marginBottom: 8 }}>
         <div style={{ fontSize: 11, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)', marginBottom: 12 }}>Life Insurance Counsellor Association</div>
         <div style={{ fontSize: 28, fontWeight: 300, letterSpacing: '0.08em' }}>LICA Photo</div>
@@ -36,8 +36,8 @@ function LoginScreen({ error }) {
         </div>
       )}
       <a href="/api/auth/login" style={{ display: 'inline-flex', alignItems: 'center', gap: 12, padding: '14px 32px', borderRadius: 100, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(16px)', color: '#fff', textDecoration: 'none', fontSize: 14, letterSpacing: '0.06em', fontFamily: FONT, cursor: 'pointer' }}
-        onMouseEnter={function(e){ e.currentTarget.style.background='rgba(255,255,255,0.18)'; }}
-        onMouseLeave={function(e){ e.currentTarget.style.background='rgba(255,255,255,0.1)'; }}>
+
+        className="lica-login-btn">
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
           <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
           <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/>
@@ -119,7 +119,7 @@ function UploaderPanel({ user }) {
   var doneCount = fileQueue.filter(function (f) { return f.status === 'done'; }).length;
 
   return (
-    <div style={{ maxWidth: 780, margin: '0 auto', padding: '32px 20px', fontFamily: FONT, color: '#fff' }}>
+    <div style={{ maxWidth: 780, margin: '0 auto', padding: 'clamp(32px,4vw,48px) 20px max(32px, calc(32px + env(safe-area-inset-bottom, 0px)))', fontFamily: FONT, color: '#fff' }}>
       <Section title="โฟลเดอร์ปลายทาง">
         {loadingFolders ? <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13 }}>กำลังโหลด...</div> : (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
@@ -201,12 +201,12 @@ export default function Uploader() {
   }, []);
 
   return (
-    <div style={{ background: '#0a0a0a', minHeight: '100vh' }}>
+    <div style={{ background: '#0a0a0a', minHeight: '100svh', overflowX: 'hidden' }}>
       <Head>
         <title>อัปโหลดภาพ — LICA Photo</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
       </Head>
-      <div style={{ position: 'sticky', top: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 clamp(16px,4vw,40px)', height: 52, background: 'rgba(10,10,10,0.9)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.07)', fontFamily: FONT }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 clamp(16px,4vw,40px)', minHeight: 52, paddingTop: 'env(safe-area-inset-top, 0px)', background: 'rgba(10,10,10,0.9)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.07)', fontFamily: FONT }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <a href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 12px', borderRadius: 100, border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: 11, letterSpacing: '0.06em' }}>← หน้าหลัก</a>
           <span style={{ fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)' }}>LICA</span>
@@ -222,7 +222,11 @@ export default function Uploader() {
       {user === null && <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 52px)' }}><div style={{ width: 32, height: 32, border: '2px solid rgba(255,255,255,0.1)', borderTopColor: 'rgba(255,255,255,0.5)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /></div>}
       {user === false && <LoginScreen error={pageError} />}
       {user && user.email && <UploaderPanel user={user} />}
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } } * { box-sizing: border-box; margin: 0; padding: 0; } body { background: #0a0a0a; } button:focus { outline: none; } input:focus { outline: none; }`}</style>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } } * { box-sizing: border-box; margin: 0; padding: 0; } body { background: #0a0a0a; } button:focus { outline: none; } input:focus { outline: none; }
+        * { -webkit-tap-highlight-color: transparent; }
+        body { overflow-x: hidden; }
+        .lica-login-btn { transition: background 0.2s; }
+        @media (hover: hover) { .lica-login-btn:hover { background: rgba(255,255,255,0.18) !important; } }`}</style>
     </div>
   );
                                        }
