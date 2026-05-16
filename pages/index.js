@@ -27,6 +27,12 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="theme-color" content="#000000" />
         <style>{CSS}</style>
+      
+      <style>{`
+        * { -webkit-tap-highlight-color: transparent; }
+        body { overflow-x: hidden; }
+        @media (hover: hover) { .lica-hover:hover { opacity: 0.85; } }
+      `}</style>
       </Head>
 
       {/* ── Fixed shell: viewport-locked, overflow impossible ── */}
@@ -73,8 +79,7 @@ export default function Home() {
         }}>
           <button
             type="button"
-            onMouseEnter={function() { setHovG(true); }}
-            onMouseLeave={function() { setHovG(false); }}
+            className="lica-hover"
             onClick={function() { router.push('/gallery'); }}
             style={Object.assign({}, BTN_BASE, {
               pointerEvents: 'all',
@@ -115,8 +120,7 @@ export default function Home() {
           {/* ผู้ร่วมงาน */}
           <button
             type="button"
-            onMouseEnter={function() { setHovT(true); }}
-            onMouseLeave={function() { setHovT(false); }}
+            className="lica-hover"
             onClick={function() { router.push('/team-downloads'); }}
             style={Object.assign({}, BTN_BASE, {
               padding: '8px 18px',
@@ -135,8 +139,7 @@ export default function Home() {
           {/* ช่างภาพ */}
           <button
             type="button"
-            onMouseEnter={function() { setHovP(true); }}
-            onMouseLeave={function() { setHovP(false); }}
+            className="lica-hover"
             onClick={function() { router.push('/uploader'); }}
             style={Object.assign({}, BTN_BASE, {
               padding: '8px 18px',
